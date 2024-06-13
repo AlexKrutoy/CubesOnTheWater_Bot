@@ -133,8 +133,10 @@ class Tapper:
                 else:
                     if response_text == '???????????????':
                         return None
-                    elif response_text == '? banned ?' or response_text == 'Not enough energy':
+                    elif response_text == '? banned ?':
                         return 'energy recovery'
+                    elif response_text == 'Not enough energy':
+                        return 'not enough'
 
         except Exception as error:
             logger.error(f"Mine request error happened: {error}")
@@ -237,9 +239,18 @@ class Tapper:
                             await asyncio.sleep(1000 - int(app_user_data.get('energy')))
                             continue
 
+                        if mine_data == 'not enough':
+                            logger.warning(f'{self.session_name} | Not enough energy to mine block | '
+                                           f'Going sleep 15 sec')
+                            await asyncio.sleep(15)
+                            continue
+                        
+                        elif mine_data is None:
+                            continue
+
                         elif mine_data is not None:
                             if (len(mine_data.get('mystery_ids')) > 0 and
-                                    mine_data.get('mystery_ids')[0] == mine_data.get('mined_count')):
+                                    int(mine_data.get('mystery_ids')[0]) == int(mine_data.get('mined_count'))):
                                 logger.info(f"{self.session_name} | Mined <magenta>mystery box</magenta>! | Drops: "
                                             f"{mine_data.get('drops_amount')}; Energy: {mine_data.get('energy')}; "
                                             f"Boxes: {mine_data.get('boxes_amount')}")
