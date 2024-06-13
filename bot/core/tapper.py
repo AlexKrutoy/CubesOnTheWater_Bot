@@ -219,9 +219,9 @@ class Tapper:
                                                                amount=app_user_data.get('drops_amount'))
 
                     logger.success(f"{self.session_name} | Boosted pool by {app_user_data.get('drops_amount'))} "
-                                    f"for better rewards | total invest: "
-                                    f"{boost_json.get('poolInvested')} | your invest: "
-                                    f"{boost_json.get('userInvested')}")
+                                   f"for better rewards | total invest: "
+                                   f"{boost_json.get('poolInvested')} | your invest: "
+                                   f"{boost_json.get('userInvested')}")
 
                     await asyncio.sleep(1000 - int(app_user_data.get('energy')))
 
