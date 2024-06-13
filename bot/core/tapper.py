@@ -222,7 +222,7 @@ class Tapper:
 
                     if boost_json:
                         logger.success(f"{self.session_name} | Boosted pool for better rewards | invested: "
-                                       f"{app_user_data.get('drops_amount')} "
+                                       f"{app_user_data.get('drops_amount')} | "
                                        f"total invest: "
                                        f"{boost_json.get('poolInvested')} | your invest: "
                                        f"{boost_json.get('userInvested')}")
@@ -250,7 +250,7 @@ class Tapper:
 
                             if boost_json:
                                 logger.success(f"{self.session_name} | Boosted pool for better rewards | invested: "
-                                               f"{app_user_data.get('drops_amount')} "
+                                               f"{app_user_data.get('drops_amount')} | "
                                                f"total invest: "
                                                f"{boost_json.get('poolInvested')} | your invest: "
                                                f"{boost_json.get('userInvested')}")
