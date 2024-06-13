@@ -218,10 +218,11 @@ class Tapper:
                                                        token=app_user_data.get('token'),
                                                        amount=app_user_data.get('drops_amount'))
 
-                    logger.success(f"{self.session_name} | Boosted pool by {app_user_data.get('drops_amount')} "
-                                   f"for better rewards | total invest: "
-                                   f"{boost_json.get('poolInvested')} | your invest: "
-                                   f"{boost_json.get('userInvested')}")
+                    if boost_json:
+                        logger.success(f"{self.session_name} | Boosted pool by {app_user_data.get('drops_amount')} "
+                                       f"for better rewards | total invest: "
+                                       f"{boost_json.get('poolInvested')} | your invest: "
+                                       f"{boost_json.get('userInvested')}")
 
                     await asyncio.sleep(1000 - int(app_user_data.get('energy')))
 
@@ -244,9 +245,11 @@ class Tapper:
                                                                token=app_user_data.get('token'),
                                                                amount=app_user_data.get('drops_amount'))
 
-                            logger.success(f"{self.session_name} | Boosted pool by {app_user_data.get('drops_amount')} "
-                                           f"for better rewards | total invest: {boost_json.get('poolInvested')} | "
-                                           f"your invest: {boost_json.get('userInvested')}")
+                            if boost_json:
+                                logger.success(
+                                    f"{self.session_name} | Boosted pool by {app_user_data.get('drops_amount')} "
+                                    f"for better rewards | total invest: {boost_json.get('poolInvested')} | "
+                                    f"your invest: {boost_json.get('userInvested')}")
 
                             await asyncio.sleep(1000 - int(app_user_data.get('energy')))
                             continue
