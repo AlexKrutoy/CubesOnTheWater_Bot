@@ -213,6 +213,16 @@ class Tapper:
                 if app_user_data.get('banned_until_restore') == 'true':
                     logger.warning(f"{self.session_name} | "
                                    f"Energy recovery. Going sleep {1000 - int(app_user_data.get('energy'))} seconds")
+                    
+                    boost_json = await self.boost_pool(http_client=http_client,
+                                                               token=app_user_data.get('token'),
+                                                               amount=app_user_data.get('drops_amount'))
+
+                    logger.success(f"{self.session_name} | Boosted pool by {app_user_data.get('drops_amount'))} "
+                                    f"for better rewards | total invest: "
+                                    f"{boost_json.get('poolInvested')} | your invest: "
+                                    f"{boost_json.get('userInvested')}")
+
                     await asyncio.sleep(1000 - int(app_user_data.get('energy')))
 
                 status = await self.get_tg_x(http_client=http_client, token=app_user_data.get('token'))
@@ -234,7 +244,8 @@ class Tapper:
                                                                token=app_user_data.get('token'),
                                                                amount=app_user_data.get('drops_amount'))
 
-                            logger.success(f"{self.session_name} | Boosted pool for better rewards | total invest: "
+                            logger.success(f"{self.session_name} | Boosted pool by {app_user_data.get('drops_amount'))} "
+                                           f"for better rewards | total invest: "
                                            f"{boost_json.get('poolInvested')} | your invest: "
                                            f"{boost_json.get('userInvested')}")
 
