@@ -226,11 +226,11 @@ class Tapper:
 
                     await asyncio.sleep(1000 - int(app_user_data.get('energy')))
 
-                    status = await self.get_tg_x(http_client=http_client, token=app_user_data.get('token'))
+                status = await self.get_tg_x(http_client=http_client, token=app_user_data.get('token'))
 
-                    last_claim_time = time()
-                    time_before_claim = randint(a=settings.TIME_BETWEEN_RECEIVING_BOXES[0],
-                                                b=settings.TIME_BETWEEN_RECEIVING_BOXES[1])
+                last_claim_time = time()
+                time_before_claim = randint(a=settings.TIME_BETWEEN_RECEIVING_BOXES[0],
+                                            b=settings.TIME_BETWEEN_RECEIVING_BOXES[1])
                 while True:
                     try:
                         mine_data = await self.mine(http_client=http_client, token=app_user_data.get('token'))
