@@ -203,9 +203,11 @@ class Tapper:
             ["User-Agent"]) = generate_random_user_agent(device_type='android', browser_type='chrome')
 
             app_user_data = await self.login(http_client=http_client, init_data=init_data)
-            logger.info(f"{self.session_name} | Authorized")
 
             if app_user_data:
+                
+                logger.info(f"{self.session_name} | Authorized")
+                
                 if app_user_data.get('pool_id') != '59979':
                     await self.join_to_pool(http_client=http_client, token=app_user_data.get('token'))
                     logger.success(f"{self.session_name} | Joined channel pool for better rewards")
