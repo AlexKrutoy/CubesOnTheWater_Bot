@@ -179,7 +179,7 @@ class Tapper:
     async def run(self, proxy: str | None) -> None:
         while True:
             bad_request_count = 0
-            
+
             proxy_conn = ProxyConnector().from_url(proxy) if proxy else None
 
             http_client = CloudflareScraper(headers=headers, connector=proxy_conn)
@@ -213,23 +213,23 @@ class Tapper:
                 if app_user_data.get('banned_until_restore') == 'true':
                     logger.warning(f"{self.session_name} | "
                                    f"Energy recovery. Going sleep {1000 - int(app_user_data.get('energy'))} seconds")
-                    
-                    boost_json = await self.boost_pool(http_client=http_client,
-                                                               token=app_user_data.get('token'),
-                                                               amount=app_user_data.get('drops_amount'))
 
-                    logger.success(f"{self.session_name} | Boosted pool by {app_user_data.get('drops_amount'))} "
+                    boost_json = await self.boost_pool(http_client=http_client,
+                                                       token=app_user_data.get('token'),
+                                                       amount=app_user_data.get('drops_amount'))
+
+                    logger.success(f"{self.session_name} | Boosted pool by {app_user_data.get('drops_amount')} "
                                    f"for better rewards | total invest: "
                                    f"{boost_json.get('poolInvested')} | your invest: "
                                    f"{boost_json.get('userInvested')}")
 
                     await asyncio.sleep(1000 - int(app_user_data.get('energy')))
 
-                status = await self.get_tg_x(http_client=http_client, token=app_user_data.get('token'))
+                    status = await self.get_tg_x(http_client=http_client, token=app_user_data.get('token'))
 
-                last_claim_time = time()
-                time_before_claim = randint(a=settings.TIME_BETWEEN_RECEIVING_BOXES[0],
-                                            b=settings.TIME_BETWEEN_RECEIVING_BOXES[1])
+                    last_claim_time = time()
+                    time_before_claim = randint(a=settings.TIME_BETWEEN_RECEIVING_BOXES[0],
+                                                b=settings.TIME_BETWEEN_RECEIVING_BOXES[1])
                 while True:
                     try:
                         mine_data = await self.mine(http_client=http_client, token=app_user_data.get('token'))
@@ -244,10 +244,9 @@ class Tapper:
                                                                token=app_user_data.get('token'),
                                                                amount=app_user_data.get('drops_amount'))
 
-                            logger.success(f"{self.session_name} | Boosted pool by {app_user_data.get('drops_amount'))} "
-                                           f"for better rewards | total invest: "
-                                           f"{boost_json.get('poolInvested')} | your invest: "
-                                           f"{boost_json.get('userInvested')}")
+                            logger.success(f"{self.session_name} | Boosted pool by {app_user_data.get('drops_amount')} "
+                                           f"for better rewards | total invest: {boost_json.get('poolInvested')} | "
+                                           f"your invest: {boost_json.get('userInvested')}")
 
                             await asyncio.sleep(1000 - int(app_user_data.get('energy')))
                             continue
@@ -257,7 +256,7 @@ class Tapper:
                                            f'Going sleep 15 sec')
                             await asyncio.sleep(15)
                             continue
-                        
+
                         elif mine_data is None:
                             bad_request_count += 1
                             if bad_request_count != 10:
@@ -307,6 +306,7 @@ class Tapper:
             else:
                 logger.info(f"{self.session_name} | No app_user_data found, restarting run method")
                 await asyncio.sleep(5)
+
 
 async def run_tapper(tg_client: Client, proxy: str | None):
     try:
