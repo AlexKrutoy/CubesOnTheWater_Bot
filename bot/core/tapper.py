@@ -219,11 +219,10 @@ class Tapper:
                                                        amount=app_user_data.get('drops_amount'))
 
                     if boost_json:
-                        logger.success(f"{self.session_name} | Boosted pool by {app_user_data.get('drops_amount')} "
-                                       f"for better rewards | total invest: "
+                        logger.success(f"{self.session_name} | Boosted pool for better rewards | total invest: "
                                        f"{boost_json.get('poolInvested')} | your invest: "
                                        f"{boost_json.get('userInvested')}")
-
+                    
                     await asyncio.sleep(1000 - int(app_user_data.get('energy')))
 
                 status = await self.get_tg_x(http_client=http_client, token=app_user_data.get('token'))
@@ -246,10 +245,9 @@ class Tapper:
                                                                amount=app_user_data.get('drops_amount'))
 
                             if boost_json:
-                                logger.success(
-                                    f"{self.session_name} | Boosted pool by {app_user_data.get('drops_amount')} "
-                                    f"for better rewards | total invest: {boost_json.get('poolInvested')} | "
-                                    f"your invest: {boost_json.get('userInvested')}")
+                                logger.success(f"{self.session_name} | Boosted pool for better rewards | total invest: "
+                                               f"{boost_json.get('poolInvested')} | your invest: "
+                                               f"{boost_json.get('userInvested')}")
 
                             await asyncio.sleep(1000 - int(app_user_data.get('energy')))
                             continue
