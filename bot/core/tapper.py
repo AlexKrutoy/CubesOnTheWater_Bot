@@ -1,5 +1,4 @@
 import asyncio
-import hashlib
 from urllib.parse import unquote, quote
 
 import aiohttp
@@ -176,105 +175,108 @@ class Tapper:
             logger.error(f"{self.session_name} | Proxy: {proxy} | Error: {error}")
 
     async def run(self, proxy: str | None) -> None:
-        proxy_conn = ProxyConnector().from_url(proxy) if proxy else None
-
-        http_client = CloudflareScraper(headers=headers, connector=proxy_conn)
-
-        if proxy:
-            await self.check_proxy(http_client=http_client, proxy=proxy)
-
-        tg_web_data = await self.get_tg_web_data(proxy=proxy)
-
-        tg_web_data_parts = tg_web_data.split('&')
-        query_id = tg_web_data_parts[0].split('=')[1]
-        user_data = tg_web_data_parts[1].split('=')[1]
-        auth_date = tg_web_data_parts[2].split('=')[1]
-        hash_value = tg_web_data_parts[3].split('=')[1]
-
-        user_data_encoded = quote(user_data)
-
-        init_data = f"query_id={query_id}&user={user_data_encoded}&auth_date={auth_date}&hash={hash_value}"
-
-        (http_client.headers
-        ["User-Agent"]) = generate_random_user_agent(device_type='android', browser_type='chrome')
-
-        app_user_data = await self.login(http_client=http_client, init_data=init_data)
-        logger.info(f"{self.session_name} | Authorized")
-
-        if (app_user_data.get('pool_id') != '59979'):
-            await self.join_to_pool(http_client=http_client, token=app_user_data.get('token'))
-            logger.success(f"{self.session_name} | Joined channel pool for better rewards")
-
-        if app_user_data.get('banned_until_restore') == 'true':
-            logger.warning(f"{self.session_name} | "
-                           f"Energy recovery. Going sleep {1000 - int(app_user_data.get('energy'))} seconds")
-            await asyncio.sleep(1000 - int(app_user_data.get('energy')))
-
-        status = await self.get_tg_x(http_client=http_client, token=app_user_data.get('token'))
-
-        last_claim_time = time()
-        time_before_claim = randint(a=settings.TIME_BETWEEN_RECEIVING_BOXES[0],
-                                    b=settings.TIME_BETWEEN_RECEIVING_BOXES[1])
         while True:
-            try:
-                mine_data = await self.mine(http_client=http_client, token=app_user_data.get('token'))
+            proxy_conn = ProxyConnector().from_url(proxy) if proxy else None
 
-                if mine_data == 'energy recovery':
+            http_client = CloudflareScraper(headers=headers, connector=proxy_conn)
 
-                    app_user_data = await self.login(http_client=http_client, init_data=init_data)
+            if proxy:
+                await self.check_proxy(http_client=http_client, proxy=proxy)
 
+            tg_web_data = await self.get_tg_web_data(proxy=proxy)
+
+            tg_web_data_parts = tg_web_data.split('&')
+            query_id = tg_web_data_parts[0].split('=')[1]
+            user_data = tg_web_data_parts[1].split('=')[1]
+            auth_date = tg_web_data_parts[2].split('=')[1]
+            hash_value = tg_web_data_parts[3].split('=')[1]
+
+            user_data_encoded = quote(user_data)
+
+            init_data = f"query_id={query_id}&user={user_data_encoded}&auth_date={auth_date}&hash={hash_value}"
+
+            (http_client.headers
+            ["User-Agent"]) = generate_random_user_agent(device_type='android', browser_type='chrome')
+
+            app_user_data = await self.login(http_client=http_client, init_data=init_data)
+            logger.info(f"{self.session_name} | Authorized")
+
+            if app_user_data:
+                if app_user_data.get('pool_id') != '59979':
+                    await self.join_to_pool(http_client=http_client, token=app_user_data.get('token'))
+                    logger.success(f"{self.session_name} | Joined channel pool for better rewards")
+
+                if app_user_data.get('banned_until_restore') == 'true':
                     logger.warning(f"{self.session_name} | "
                                    f"Energy recovery. Going sleep {1000 - int(app_user_data.get('energy'))} seconds")
-
-                    boost_json = await self.boost_pool(http_client=http_client, token=app_user_data.get('token'),
-                                                       amount=app_user_data.get('drops_amount'))
-
-                    logger.success(f"{self.session_name} | Boosted pool for better rewards | total invest: "
-                                   f"{boost_json.get('poolInvested')} | your invest: "
-                                   f"{boost_json.get('userInvested')}")
-
                     await asyncio.sleep(1000 - int(app_user_data.get('energy')))
-                    continue
 
-                elif mine_data != None:
-                    if (len(mine_data.get('mystery_ids')) > 0 and
-                            mine_data.get('mystery_ids')[0] == mine_data.get('mined_count')):
-                        logger.info(f"{self.session_name} | Mined <magenta>mystery box</magenta>! | Drops: "
-                                    f"{mine_data.get('drops_amount')}; Energy: {mine_data.get('energy')}; "
-                                    f"Boxes: {mine_data.get('boxes_amount')}")
+                status = await self.get_tg_x(http_client=http_client, token=app_user_data.get('token'))
 
-                    else:
-                        logger.info(f"{self.session_name} | Mined! | Drops: {mine_data.get('drops_amount')}; "
-                                    f"Energy: {mine_data.get('energy')}; Boxes: {mine_data.get('boxes_amount')}")
+                last_claim_time = time()
+                time_before_claim = randint(a=settings.TIME_BETWEEN_RECEIVING_BOXES[0],
+                                            b=settings.TIME_BETWEEN_RECEIVING_BOXES[1])
+                while True:
+                    try:
+                        mine_data = await self.mine(http_client=http_client, token=app_user_data.get('token'))
 
-                sleep_between_mines = randint(a=settings.MINING_DELAY[0], b=settings.MINING_DELAY[1])
+                        if mine_data == 'energy recovery':
+                            app_user_data = await self.login(http_client=http_client, init_data=init_data)
 
-                await asyncio.sleep(sleep_between_mines)
+                            logger.warning(f"{self.session_name} | "
+                                           f"Energy recovery. Going sleep {1000 - int(app_user_data.get('energy'))} seconds")
 
-                if (time() - last_claim_time) >= time_before_claim:
-                    boxes_before_claim = int(mine_data.get('boxes_amount'))
-                    boxes_after_claim = await self.claim_boxes(http_client=http_client,
-                                                               token=app_user_data.get('token'))
-                    if (boxes_after_claim):
-                        logger.info(f"{self.session_name} | Received "
-                                    f"+{int(boxes_after_claim) - boxes_before_claim} mystery boxes")
-                    else:
-                        logger.info(f"{self.session_name} | No received mystery boxes")
-                    time_before_claim = randint(a=settings.TIME_BETWEEN_RECEIVING_BOXES[0],
-                                                b=settings.TIME_BETWEEN_RECEIVING_BOXES[1])
+                            boost_json = await self.boost_pool(http_client=http_client,
+                                                               token=app_user_data.get('token'),
+                                                               amount=app_user_data.get('drops_amount'))
 
-                    last_claim = time()
-                    sleep_between_mines = randint(a=settings.MINING_DELAY[0], b=settings.MINING_DELAY[1])
-                    logger.info(f"{self.session_name} | Going sleep {sleep_between_mines} seconds")
-                    await asyncio.sleep(sleep_between_mines)
+                            logger.success(f"{self.session_name} | Boosted pool for better rewards | total invest: "
+                                           f"{boost_json.get('poolInvested')} | your invest: "
+                                           f"{boost_json.get('userInvested')}")
 
-            except InvalidSession as error:
-                raise error
+                            await asyncio.sleep(1000 - int(app_user_data.get('energy')))
+                            continue
 
-            except Exception as error:
-                logger.error(f"{self.session_name} | Unknown error: {error}")
-                await asyncio.sleep(delay=3)
+                        elif mine_data is not None:
+                            if (len(mine_data.get('mystery_ids')) > 0 and
+                                    mine_data.get('mystery_ids')[0] == mine_data.get('mined_count')):
+                                logger.info(f"{self.session_name} | Mined <magenta>mystery box</magenta>! | Drops: "
+                                            f"{mine_data.get('drops_amount')}; Energy: {mine_data.get('energy')}; "
+                                            f"Boxes: {mine_data.get('boxes_amount')}")
+                            else:
+                                logger.info(f"{self.session_name} | Mined! | Drops: {mine_data.get('drops_amount')}; "
+                                            f"Energy: {mine_data.get('energy')}; Boxes: {mine_data.get('boxes_amount')}")
 
+                        sleep_between_mines = randint(a=settings.MINING_DELAY[0], b=settings.MINING_DELAY[1])
+                        await asyncio.sleep(sleep_between_mines)
+
+                        if (time() - last_claim_time) >= time_before_claim:
+                            boxes_before_claim = int(mine_data.get('boxes_amount'))
+                            boxes_after_claim = await self.claim_boxes(http_client=http_client,
+                                                                       token=app_user_data.get('token'))
+                            if boxes_after_claim:
+                                logger.info(f"{self.session_name} | Received "
+                                            f"+{int(boxes_after_claim) - boxes_before_claim} mystery boxes")
+                            else:
+                                logger.info(f"{self.session_name} | No received mystery boxes")
+                            time_before_claim = randint(a=settings.TIME_BETWEEN_RECEIVING_BOXES[0],
+                                                        b=settings.TIME_BETWEEN_RECEIVING_BOXES[1])
+
+                            last_claim_time = time()
+                            sleep_between_mines = randint(a=settings.MINING_DELAY[0], b=settings.MINING_DELAY[1])
+                            logger.info(f"{self.session_name} | Going sleep {sleep_between_mines} seconds")
+                            await asyncio.sleep(sleep_between_mines)
+
+                    except InvalidSession as error:
+                        raise error
+
+                    except Exception as error:
+                        logger.error(f"{self.session_name} | Unknown error: {error}")
+                        await asyncio.sleep(delay=3)
+
+            else:
+                logger.info(f"{self.session_name} | No app_user_data found, restarting run method")
+                await asyncio.sleep(5)
 
 async def run_tapper(tg_client: Client, proxy: str | None):
     try:
