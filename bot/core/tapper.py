@@ -178,6 +178,8 @@ class Tapper:
 
     async def run(self, proxy: str | None) -> None:
         while True:
+            bad_request_count = 0
+            
             proxy_conn = ProxyConnector().from_url(proxy) if proxy else None
 
             http_client = CloudflareScraper(headers=headers, connector=proxy_conn)
@@ -246,7 +248,13 @@ class Tapper:
                             continue
                         
                         elif mine_data is None:
-                            continue
+                            bad_request_count += 1
+                            if bad_request_count != 10:
+                                continue
+                            elif bad_request_count == 10:
+                                await self.tg_client.send_message('cubesonthewater_bot', '/unban')
+                                bad_request_count = 0
+                                continue
 
                         elif mine_data is not None:
                             if (len(mine_data.get('mystery_ids')) > 0 and
