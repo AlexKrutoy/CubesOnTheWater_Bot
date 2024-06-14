@@ -16,7 +16,7 @@ from bot.utils import logger
 from bot.exceptions import InvalidSession
 from .headers import headers
 
-from random import randint
+from random import randint, choice
 from time import time
 
 
@@ -116,7 +116,7 @@ class Tapper:
 
     async def join_to_pool(self, http_client: aiohttp.ClientSession, token: str):
         try:
-            async with http_client.post(url='https://server.questioncube.xyz/pools/59979/join',
+            async with http_client.post(url='https://server.questioncube.xyz/pools/74965/join',
                                         json={'token': token}) as response:
                 response_text = await response.text()
         except Exception as error:
@@ -204,11 +204,13 @@ class Tapper:
 
             app_user_data = await self.login(http_client=http_client, init_data=init_data)
 
-            if app_user_data:
-                
+            mining_delay = [0.8, 2, 2.8, 4, 5.2, 6, 6.8, 8]
+
+            if app_user_data is not None:
+
                 logger.info(f"{self.session_name} | Authorized")
                 
-                if app_user_data.get('pool_id') != '59979':
+                if app_user_data.get('pool_id') != '74965':
                     await self.join_to_pool(http_client=http_client, token=app_user_data.get('token'))
                     logger.success(f"{self.session_name} | Joined channel pool for better rewards")
 
@@ -226,27 +228,24 @@ class Tapper:
                                        f"total invest: "
                                        f"{boost_json.get('poolInvested')} | your invest: "
                                        f"{boost_json.get('userInvested')}")
-
                     await asyncio.sleep(1000 - int(app_user_data.get('energy')))
 
                 status = await self.get_tg_x(http_client=http_client, token=app_user_data.get('token'))
-
                 last_claim_time = time()
                 time_before_claim = randint(a=settings.TIME_BETWEEN_RECEIVING_BOXES[0],
                                             b=settings.TIME_BETWEEN_RECEIVING_BOXES[1])
                 while True:
                     try:
                         mine_data = await self.mine(http_client=http_client, token=app_user_data.get('token'))
-
                         if mine_data == 'energy recovery':
                             app_user_data = await self.login(http_client=http_client, init_data=init_data)
-
                             logger.warning(f"{self.session_name} | "
-                                           f"Energy recovery. Going sleep {1000 - int(app_user_data.get('energy'))} seconds")
+                                           f"Energy recovery. Going sleep {1000 - int(app_user_data.get('energy'))} "
+                                           f"seconds")
 
                             boost_json = await self.boost_pool(http_client=http_client,
-                                                               token=app_user_data.get('token'),
-                                                               amount=app_user_data.get('drops_amount'))
+                                                                   token=app_user_data.get('token'),
+                                                                   amount=app_user_data.get('drops_amount'))
 
                             if boost_json:
                                 logger.success(f"{self.session_name} | Boosted pool for better rewards | invested: "
@@ -265,13 +264,22 @@ class Tapper:
                             continue
 
                         elif mine_data is None:
-                            bad_request_count += 1
-                            if bad_request_count != 10:
-                                continue
-                            elif bad_request_count == 10:
-                                await self.tg_client.send_message('cubesonthewater_bot', '/unban')
-                                bad_request_count = 0
-                                continue
+                            if not self.tg_client.is_connected:
+                                try:
+                                    await self.tg_client.connect()
+
+                                    bad_request_count += 1
+
+                                    if bad_request_count != 10:
+                                        continue
+
+                                    elif bad_request_count == 10:
+                                        await self.tg_client.send_message('cubesonthewater_bot', '/unban')
+                                        bad_request_count = 0
+                                        await self.tg_client.disconnect()
+                                        continue
+                                except (Unauthorized, UserDeactivated, AuthKeyUnregistered):
+                                    raise InvalidSession(self.session_name)
 
                         elif mine_data is not None:
                             if (len(mine_data.get('mystery_ids')) > 0 and
@@ -280,10 +288,12 @@ class Tapper:
                                             f"{mine_data.get('drops_amount')}; Energy: {mine_data.get('energy')}; "
                                             f"Boxes: {mine_data.get('boxes_amount')}")
                             else:
-                                logger.info(f"{self.session_name} | Mined! | Drops: {mine_data.get('drops_amount')}; "
-                                            f"Energy: {mine_data.get('energy')}; Boxes: {mine_data.get('boxes_amount')}")
+                                logger.info(f"{self.session_name} | Mined! | Drops: "
+                                            f"{mine_data.get('drops_amount')}; "
+                                            f"Energy: {mine_data.get('energy')}; Boxes: "
+                                            f"{mine_data.get('boxes_amount')}")
 
-                        sleep_between_mines = randint(a=settings.MINING_DELAY[0], b=settings.MINING_DELAY[1])
+                        sleep_between_mines = choice(mining_delay)
                         await asyncio.sleep(sleep_between_mines)
 
                         if (time() - last_claim_time) >= time_before_claim:
@@ -299,7 +309,7 @@ class Tapper:
                                                         b=settings.TIME_BETWEEN_RECEIVING_BOXES[1])
 
                             last_claim_time = time()
-                            sleep_between_mines = randint(a=settings.MINING_DELAY[0], b=settings.MINING_DELAY[1])
+                            sleep_between_mines = choice(mining_delay)
                             logger.info(f"{self.session_name} | Going sleep {sleep_between_mines} seconds")
                             await asyncio.sleep(sleep_between_mines)
 

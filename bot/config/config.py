@@ -6,8 +6,7 @@ class Settings(BaseSettings):
 
     API_ID: int
     API_HASH: str
-    
-    MINING_DELAY: list[int] = [5, 8]
+
     TIME_BETWEEN_RECEIVING_BOXES: list[int] = [3600, 7200]
 
     USE_PROXY_FROM_FILE: bool = False

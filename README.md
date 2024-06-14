@@ -28,7 +28,6 @@
 | Settings | Description |
 |--------------------------|:---------------------------------------------------------------------------------------------:|
 | **API_ID / API_HASH**    | Platform data from which to run the Telegram session (default - android)                     |
-| **MINING_DELAY**         | Delay between destroying blocks (default [5, 8]                                              |
 | **TIME_BETWEEN_RECEIVING_BOXES** | Delay between collecting mystery boxes from pool (default [3600, 7200]               |
 | **USE_PROXY_FROM_FILE**  | Whether to use a proxy from the bot/config/proxies.txt file (True / False)                   |
 
