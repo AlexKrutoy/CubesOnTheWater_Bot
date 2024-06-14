@@ -91,7 +91,7 @@ class Tapper:
     async def login(self, http_client: aiohttp.ClientSession, init_data: str):
         try:
             async with http_client.post(url='https://server.questioncube.xyz/auth',
-                                        json={'initData': init_data}) as response:
+                                        json={'initData': init_data, 'ref': None}) as response:
                 response_text = await response.text()
                 app_user_data = json.loads(response_text)
                 return app_user_data
@@ -296,7 +296,8 @@ class Tapper:
                         sleep_between_mines = choice(mining_delay)
                         await asyncio.sleep(sleep_between_mines)
 
-                        if (time() - last_claim_time) >= time_before_claim:
+                        if (time() - last_claim_time) >= time_before_claim and (mine_data is not None or
+                                                                                mine_data != {}):
                             boxes_before_claim = int(mine_data.get('boxes_amount'))
                             boxes_after_claim = await self.claim_boxes(http_client=http_client,
                                                                        token=app_user_data.get('token'))
@@ -312,6 +313,8 @@ class Tapper:
                             sleep_between_mines = choice(mining_delay)
                             logger.info(f"{self.session_name} | Going sleep {sleep_between_mines} seconds")
                             await asyncio.sleep(sleep_between_mines)
+                        elif mine_data is None or mine_data == {}:
+                            continue
 
                     except InvalidSession as error:
                         raise error
