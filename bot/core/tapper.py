@@ -116,7 +116,7 @@ class Tapper:
 
     async def join_to_pool(self, http_client: aiohttp.ClientSession, token: str):
         try:
-            async with http_client.post(url='https://server.questioncube.xyz/pools/74965/join',
+            async with http_client.post(url='https://server.questioncube.xyz/pools/80554/join',
                                         json={'token': token}) as response:
                 response_text = await response.text()
         except Exception as error:
@@ -210,7 +210,7 @@ class Tapper:
 
                 logger.info(f"{self.session_name} | Authorized")
                 
-                if app_user_data.get('pool_id') != '74965':
+                if app_user_data.get('pool_id') != '80554':
                     await self.join_to_pool(http_client=http_client, token=app_user_data.get('token'))
                     logger.success(f"{self.session_name} | Joined channel pool for better rewards")
 
