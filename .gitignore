@@ -5,3 +5,5 @@ sessions/
 .idea/
 
 __pycache__
+
+venv/
