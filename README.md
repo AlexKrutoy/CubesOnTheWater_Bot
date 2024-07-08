@@ -15,21 +15,23 @@
 > 🇷 🇺 README in russian available [here](README-RU.md)
 
 ## Features  
-| Feature                                                     | Supported  |
-|---------------------------------------------------------------|:----------------:|
-| Multithreading                                                |        ✅        |
-| Auto-main blocks                                              |        ✅        |
-| Auto-collect boxes from pool                                  |        ✅        |
-| Proxy binding to session                                      |        ✅        |
-| Support for tdata / pyrogram .session / telethon .session     |        ✅        |
+| Feature                                                   | Supported |
+|-----------------------------------------------------------|:---------:|
+| Multithreading                                            |     ✅     |
+| Auto-main blocks                                          |     ✅     |
+| Auto-collect boxes from pool                              |     ✅     |
+| Proxy binding to session                                  |     ✅     |
+| Auto referral                                             |     ✅     |
+| Support for tdata / pyrogram .session / telethon .session |     ✅     |
 
 
 ## [Settings](https://github.com/AlexKrutoy/CubesOnTheWater_Bot/blob/main/.env-example/)
-| Settings | Description |
-|--------------------------|:---------------------------------------------------------------------------------------------:|
-| **API_ID / API_HASH**    | Platform data from which to run the Telegram session (default - android)                     |
-| **TIME_BETWEEN_RECEIVING_BOXES** | Delay between collecting mystery boxes from pool (default [3600, 7200]               |
-| **USE_PROXY_FROM_FILE**  | Whether to use a proxy from the bot/config/proxies.txt file (True / False)                   |
+| Settings                         |                                Description                                 |
+|----------------------------------|:--------------------------------------------------------------------------:|
+| **API_ID / API_HASH**            |  Platform data from which to run the Telegram session (default - android)  |
+| **TIME_BETWEEN_RECEIVING_BOXES** |   Delay between collecting mystery boxes from pool (default [3600, 7200]   |
+| **REF_ID**                       |          Argument from referral bot link after ?start={argument}           |
+| **USE_PROXY_FROM_FILE**          | Whether to use a proxy from the bot/config/proxies.txt file (True / False) |
 
 ## Quick Start 📚
 
